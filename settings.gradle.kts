@@ -7,6 +7,7 @@ include(
         "cfa-cli",
         "common",
         "core",
+        "k-induction",
         "solver",
         "solver-z3",
         "sts",
