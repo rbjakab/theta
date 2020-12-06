@@ -1,6 +1,5 @@
 package hu.bme.mit.theta.k.induction;
 
-import hu.bme.mit.theta.analysis.expl.ExplOrd;
 import hu.bme.mit.theta.cfa.CFA;
 
 import java.util.ArrayList;
@@ -21,17 +20,17 @@ public class PathOperator {
         return PathOperator.LazyHolder.INSTANCE;
     }
 
-    public List<CFA.Loc> listConvertPathVertexToCFALoc(List<PathVertex> path) {
+    public List<CFA.Loc> listConvertPathVertexToCFALoc(List<PathState> path) {
         List<CFA.Loc> returnList = new ArrayList<>();
 
-        for (PathVertex pv : path) {
+        for (PathState pv : path) {
             returnList.add(pv.loc);
         }
 
         return returnList;
     }
 
-    public List<CFA.Edge> listConvertPathVertexToCFAEdge(List<PathVertex> path) {
+    public List<CFA.Edge> listConvertPathVertexToCFAEdge(List<PathState> path) {
         List<CFA.Edge> returnList = new ArrayList<>();
 
         for (int i = 0; i < path.size() - 1; i++) {
@@ -41,8 +40,8 @@ public class PathOperator {
         return returnList;
     }
 
-    public List<PathVertex> getPathVertexPathToInit(HashMap<Integer, PathVertex> pathMap, PathVertex item) {
-        List<PathVertex> returnList = new ArrayList<>();
+    public List<PathState> getPathVertexPathToInit(HashMap<Integer, PathState> pathMap, PathState item) {
+        List<PathState> returnList = new ArrayList<>();
 
         while (pathMap.get(item.key).parentKey != -1) {
             returnList.add(pathMap.get(item.key));

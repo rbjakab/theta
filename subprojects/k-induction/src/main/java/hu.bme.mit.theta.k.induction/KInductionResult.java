@@ -17,6 +17,15 @@ public class KInductionResult {
     private long time;
     private int depth;
 
+    public KInductionResult(long time, int depth) {
+        result = enumResult.Unknown;
+
+        this.trace = null;
+
+        this.time = time;
+        this.depth = depth;
+    }
+
     public KInductionResult(boolean isSafe, long time, int depth) {
         assert isSafe : "isSafe is not true";
 
@@ -34,15 +43,6 @@ public class KInductionResult {
         result = enumResult.Unsafe;
 
         this.trace = trace;
-
-        this.time = time;
-        this.depth = depth;
-    }
-
-    public KInductionResult(long time, int depth) {
-        result = enumResult.Unknown;
-
-        this.trace = null;
 
         this.time = time;
         this.depth = depth;

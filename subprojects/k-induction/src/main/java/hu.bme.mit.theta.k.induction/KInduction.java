@@ -61,20 +61,20 @@ public class KInduction {
         long timeInSeconds;
 
         /* Forward */
-        Queue<PathVertex> queue = new LinkedList<>();
-        Queue<PathVertex> queueTemp = new LinkedList<>();
-        HashMap<Integer, PathVertex> pathMap = new HashMap<Integer, PathVertex>();
+        Queue<PathState> queue = new LinkedList<>();
+        Queue<PathState> queueTemp = new LinkedList<>();
+        HashMap<Integer, PathState> pathMap = new HashMap<Integer, PathState>();
 
         /* Backward */
-        Queue<PathVertex> queueBW = new LinkedList<>();
-        Queue<PathVertex> queue2BW = new LinkedList<>();
+        Queue<PathState> queueBW = new LinkedList<>();
+        Queue<PathState> queueTempBW = new LinkedList<>();
 
         /* Initialization forward */
-        queue.add(new PathVertex(0, -1, initLoc, null, new ArrayList<Stmt>()));
-        pathMap.put(0, new PathVertex(0, -1, initLoc, null, new ArrayList<Stmt>()));
+        queue.add(new PathState(0, -1, initLoc, null, new ArrayList<Stmt>()));
+        pathMap.put(0, new PathState(0, -1, initLoc, null, new ArrayList<Stmt>()));
         int pathKey = 1;
         /* Initialization backward */
-        queueBW.add(new PathVertex(0, -1, errorLoc, null, new ArrayList<Stmt>()));
+        queueBW.add(new PathState(0, -1, errorLoc, null, new ArrayList<Stmt>()));
 
         /* Loop */
         while (true) {
@@ -86,7 +86,7 @@ public class KInduction {
                 return new KInductionResult(timeInSeconds, depth);
             }
 
-            for (PathVertex item: queue) {
+            for (PathState item: queue) {
                 for (CFA.Edge edge : item.loc.getOutEdges()) {
                     CFA.Loc nextLoc = edge.getTarget();
 
@@ -94,13 +94,13 @@ public class KInduction {
                     stmtList.addAll(item.stmtList);
                     stmtList.add(edge.getStmt());
 
-                    PathVertex nextPV = new PathVertex(pathKey, item.key, nextLoc, edge, stmtList);
-                    pathMap.put(pathKey, nextPV);
+                    PathState nextPS = new PathState(pathKey, item.key, nextLoc, edge, stmtList);
+                    pathMap.put(pathKey, nextPS);
                     pathKey++;
 
                     /* 1 */
                     if (isSat(solver, stmtList)) {
-                        queueTemp.add(nextPV);
+                        queueTemp.add(nextPS);
                         availablePaths++;
                     }
                 }
@@ -114,13 +114,13 @@ public class KInduction {
             }
 
             /* 2 */
-            if (!isSatError(queueBW, queue2BW, solver)) {
+            if (!isErrorLocReachable(queueBW, queueTempBW, solver)) {
                 timeInSeconds = TimeUnit.SECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
                 return new KInductionResult(true, timeInSeconds, depth);
             }
 
             /* 3 */
-            for (PathVertex item: queue) {
+            for (PathState item: queue) {
                 if (item.loc.equals(errorLoc)) {
                     if (isSat(solver, item.stmtList)) {
                         List<CFA.Loc> states = pathOperator.listConvertPathVertexToCFALoc(pathOperator.getPathVertexPathToInit(pathMap, item));
@@ -172,15 +172,15 @@ public class KInduction {
         return bound != -1 && bound < depth;
     }
 
-    private void writeOutPathFrom(HashMap<Integer, PathVertex> pathMap, PathVertex item) {
-        List<PathVertex> writeOutList = pathOperator.getPathVertexPathToInit(pathMap, item);
+    private void writeOutPathFrom(HashMap<Integer, PathState> pathMap, PathState item) {
+        List<PathState> writeOutList = pathOperator.getPathVertexPathToInit(pathMap, item);
 
-        for (PathVertex itr : writeOutList) {
+        for (PathState itr : writeOutList) {
             System.out.println(itr);
         }
     }
 
-    private void queueTransfer(Queue<PathVertex> copyFrom, Queue<PathVertex> pasteTo) {
+    private void queueTransfer(Queue<PathState> copyFrom, Queue<PathState> pasteTo) {
         pasteTo.clear();
         pasteTo.addAll(copyFrom);
         copyFrom.clear();
@@ -204,17 +204,17 @@ public class KInduction {
         return status;
     }
 
-    private boolean isSatError(Queue<PathVertex> queueBW, Queue<PathVertex> queue2BW, Solver solver) {
+    private boolean isErrorLocReachable(Queue<PathState> queueBW, Queue<PathState> queue2BW, Solver solver) {
         int availablePaths = 0;
 
-        for (PathVertex item: queueBW) {
+        for (PathState item: queueBW) {
             for (CFA.Edge edge : item.loc.getInEdges()) {
                 CFA.Loc nextLoc = edge.getSource();
 
                 List<Stmt> stmtList = new ArrayList<>();
                 stmtList.add(edge.getStmt());
                 stmtList.addAll(item.stmtList);
-                PathVertex nextPV = new PathVertex(0, item.key, nextLoc, edge, stmtList);
+                PathState nextPV = new PathState(0, item.key, nextLoc, edge, stmtList);
 
                 if (isSat(solver, stmtList)) {
                     queue2BW.add(nextPV);
@@ -228,5 +228,5 @@ public class KInduction {
     }
 
     // TODO
-    private boolean isLoopFree() { return true; }
+    // private boolean isLoopFree() { return true; }
 }

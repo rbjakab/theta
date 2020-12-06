@@ -5,14 +5,14 @@ import hu.bme.mit.theta.core.stmt.Stmt;
 
 import java.util.List;
 
-public class PathVertex {
+public class PathState {
     int key;
     int parentKey;
     CFA.Loc loc;
     CFA.Edge edge;
     List<Stmt> stmtList;
 
-    PathVertex(int key, int parentKey, CFA.Loc loc, CFA.Edge edge, List<Stmt> stmtList) {
+    PathState(int key, int parentKey, CFA.Loc loc, CFA.Edge edge, List<Stmt> stmtList) {
         this.key = key;
         this.parentKey = parentKey;
         this.loc = loc;
@@ -22,6 +22,6 @@ public class PathVertex {
 
     @Override
     public String toString() {
-        return "PathVertex{" + "key=" + key + ", parentKey=" + parentKey + ", loc=" + loc.getName() + '}';
+        return "PathState{" + "key=" + key + ", parentKey=" + parentKey + ", loc=" + loc.getName() + '}';
     }
 }
